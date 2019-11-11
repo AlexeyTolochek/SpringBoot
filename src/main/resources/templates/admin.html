@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <title>AdminBootstrap</title>
+  <link rel="icon" href="../static/img/favicon.ico">
+  <link rel="stylesheet" href="../static/css/my.css">
+
+  <!-- Bootstrap core CSS -->
+  <link href="../static/css/bootstrap.css" rel="stylesheet">
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="../static/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../static/css/dashboard.css" rel="stylesheet" type="text/css">
+  <link href="../static/css/bootstrap-responsive.css" rel="stylesheet" />
+  <link href="../static/css/bootstrap-modal.css" rel="stylesheet" />
+  <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+  <!--[if lt IE 9]><script src="../static/js/ie8-responsive-file-warning.js"></script><![endif]-->
+  <script src="../static/js/ie-emulation-modes-warning.js"></script>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <meta th:name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Project name</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <form action="/user/logout" method="post">
+            <button type="submit" class="btn btn-success">Logout</button>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+      <ul class="nav nav-sidebar">
+        <li class="active"><a href="/admin">Admin <span class="sr-only">(current)</span></a></li>
+        <li><a href="/user">User</a></li>
+      </ul>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <h1 class="page-header">Admin panel</h1>
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#tab1" role="tab" data-toggle="tab">Users table</a></li>
+        <li role="presentation"><a href="#tab2" role="tab" data-toggle="tab">New User</a></li>
+      </ul>
+
+      <div class="tab-content" style="background: white">
+        <div role="tabpanel" class="tab-pane active" id="tab1">
+          <h4><b> All users</b></h4>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Role</th>
+                <th>Login</th>
+                <th>Password</th>
+                <th>Email</th>
+                <th>Edit</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="user : ${list}" items="${requestScope.list}" var="user" varStatus="vs">
+
+                  <td th:text="${user.id}">id</td>
+                  <td th:text="${#strings.replace(
+                    #strings.replace(user.roles, '[',''),
+                    ']','')}">
+                      role
+                  </td>
+                  <td th:text="${user.login}">login </td>
+                  <td th:text="${user.password}">password </td>
+                  <td th:text="${user.address}">address </td>
+                  <td>
+                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                            th:attr="data-target='#editUserModal'+${user.id}">
+                      Edit
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" th:id="editUserModal+${user.id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered" role="document">
+                        <form method="post" action="#" th:action="@{/admin/update}" th:object="${user}">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h3 class="modal-title" id="exampleModalCenterTitle">Edit user ${user.login}</h3>
+                            </div>
+                            <div class="modal-body">
+                              <div class="row justify-content-center">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4 text-center justify-content-center">
+                                  <h4>ID</h4>
+                                  <input class="form-control text-center" type="text" name="id"  th:value="${user.id}" readonly>
+                                  <h4>Name</h4>
+                                  <input type="text" name="name" class="form-control text-center" th:value="${user.name}">
+                                  <h4>Email</h4>
+                                  <input type="text" name="address" class="form-control text-center" th:value="${user.address}">
+                                  <h4>Login</h4>
+                                  <input type="text" name="login" class="form-control text-center" th:value="${user.login}">
+                                  <h4>Password</h4>
+                                  <input type="text" name="password" class="form-control text-center" th:value="${user.password}" readonly>
+                                  <h4>Role</h4>
+                                  <select class="custom-select form-control text-center" type="text" name="role">
+                                    <option selected><span th:text="${user.roles}">role</span></option>
+                                    <option value="USER">USER</option>
+                                    <option value="Admin">ADMIN</option>
+                                  </select>
+                                </div>
+                                <div class="col-md-4"></div>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                              <button type="submit" class="btn btn-primary">Edit user</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </td>
+
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="tab2">
+          <h4><b>Add new user</b></h4>
+          <form action="#" th:action="@{/admin/add}" th:object="${user}" method="post">
+            <div class="row justify-content-center">
+              <div class="col-md-4"></div>
+              <div class="col-md-4 mb-4 text-center justify-content-center">
+                <h4>Name</h4>
+                <input type="text" name="name" class="form-control text-center" placeholder="Enter name"/>
+                <h4>Email</h4>
+                <input type="text" name="address" class="form-control  text-center" placeholder="email"/>
+                <h4>Login</h4>
+                <input type="text" name="login" class="form-control text-center" placeholder="Login"/>
+                <h4>Password</h4>
+                <input type="text" name="password" class="form-control text-center" placeholder="Password"/>
+                <h4>Role</h4>
+                <select class="custom-select form-control text-center" name="role" type="text">
+                  <option selected value="USER">USER</option>
+                  <option value="Admin">ADMIN</option>
+                </select>
+                <br>
+                <button type="submit" class="btn btn-success" formaction="/admin/add">
+                  Add new user
+                </button>
+              </div>
+              <div class="col-md-4"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!--<script>window.jQuery || document.write('<script src="../js/jquery.min.js"><\/script>')</script>-->
+<script src="../static/js/bootstrap.min.js"></script>
+<script src="../static/js/bootstrap.js"></script>
+<script src="../static/js/bootstrap-modalmanager.js"></script>
+<script src="../static/js/bootstrap-modal.js"></script>
+<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+<script src="../static/js/holder.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="../static/js/ie10-viewport-bug-workaround.js"></script>
+</body>
+
+
+</html>
